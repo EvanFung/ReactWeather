@@ -24931,46 +24931,57 @@
 	var WeatherMessage = __webpack_require__(220);
 	var OpenWeatherMap = __webpack_require__(221);
 	var Weather = React.createClass({
-	  displayName: 'Weather',
+	    displayName: 'Weather',
 
-	  getInitialState: function getInitialState() {
-	    return {
-	      location: 'Miami',
-	      temp: 38
-	    };
-	  },
-	  handleSearch: function handleSearch(location) {
-	    var that = this;
-	    OpenWeatherMap.getTemp(location).then(function (temp) {
-	      that.setState({
-	        location: location,
-	        temp: temp
-	      });
-	    }, function (errorMessage) {
-	      alert(errorMessage);
-	    });
-	    // this.setState({
-	    //   location : location,
-	    //   temp: 23
-	    // })
-	  },
-	  render: function render() {
-	    var _state = this.state,
-	        temp = _state.temp,
-	        location = _state.location;
+	    getInitialState: function getInitialState() {
+	        return { isLoading: false };
+	    },
+	    handleSearch: function handleSearch(location) {
+	        var that = this;
 
-	    return React.createElement(
-	      'div',
-	      null,
-	      React.createElement(
-	        'h3',
-	        null,
-	        'Weather Component'
-	      ),
-	      React.createElement(WeatherForm, { onSearch: this.handleSearch }),
-	      React.createElement(WeatherMessage, { temp: temp, location: location })
-	    );
-	  }
+	        this.setState({ isLoading: true });
+
+	        OpenWeatherMap.getTemp(location).then(function (temp) {
+	            that.setState({ location: location, temp: temp, isLoading: false });
+	        }, function (errorMessage) {
+	            that.setState({ isLoading: false });
+	            alert(errorMessage);
+	        });
+	        // this.setState({
+	        //   location : location,
+	        //   temp: 23
+	        // })
+	    },
+	    render: function render() {
+	        var _state = this.state,
+	            isLoading = _state.isLoading,
+	            temp = _state.temp,
+	            location = _state.location;
+
+
+	        function renderMessage() {
+	            if (isLoading) {
+	                return React.createElement(
+	                    'h3',
+	                    null,
+	                    'Fetching weather...'
+	                );
+	            } else if (temp && location) {
+	                return React.createElement(WeatherMessage, { temp: temp, location: location });
+	            }
+	        }
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'h3',
+	                null,
+	                'Weather Component'
+	            ),
+	            React.createElement(WeatherForm, { onSearch: this.handleSearch }),
+	            renderMessage()
+	        );
+	    }
 	});
 
 	module.exports = Weather;
